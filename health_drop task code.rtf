@@ -1,0 +1,24 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww37900\viewh19680\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 with cte as\
+(\
+	select v.git_branch, h.*\
+	from health_drops h\
+	join vehicle_logs v on v.log_name = h.log_name\
+	where v.git_branch in ('release/7.0','release/7.1','release/7.3')\
+	and v.is_prod = true\
+\
+)\
+\
+select uid_causing_drop, error_reason, sw_version, drop_health_level, count(*) as number_of_occurance\
+from\
+(select unnest(error_uid) as uid_causing_drop, unnest(error_uid_description) as error_reason, drop_health_level,\
+ git_branch as sw_version\
+from cte) t\
+group by uid_causing_drop, error_reason,sw_version, drop_health_level\
+order by uid_causing_drop, error_reason,sw_version, number_of_occurance desc, drop_health_level desc}
